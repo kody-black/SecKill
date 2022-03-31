@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>SecKill</title>
+    <!-- meta -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- css -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/pace.css">
+    <link rel="stylesheet" href="css/custom.css">
+    <!-- js -->
+    <script src="js/jquery-2.1.3.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/pace.min.js"></script>
+    <script src="js/modernizr.custom.js"></script>
+</head>
+
+<body id="page">
+<div class="container">
+    <header id="site-header">
+        <div class="row">
+            <div class="col-md-4 col-sm-5 col-xs-8">
+                <div class="logo">
+                    <h1>
+                        <a href="index.html">欢迎使用
+                            <b>SecKill</b>
+                        </a>
+                    </h1>
+                </div>
+            </div>
+            <!-- col-md-4 -->
+            <div class="col-md-8 col-sm-7 col-xs-4">
+                <nav class="main-nav" role="navigation">
+                    <div class="navbar-header">
+                        <button type="button" id="trigger-overlay" class="navbar-toggle">
+                            <span class="ion-navicon"></span>
+                        </button>
+                    </div>
+                    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                        <ul class="nav navbar-nav navbar-right">
+                            <li class="cl-effect-11">
+                                <a href="index.html" data-hover="使用说明">使用说明</a>
+                            </li>
+                            <li class="cl-effect-11">
+                                <a href="about.html" data-hover="关于">关于</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <!-- /.navbar-collapse -->
+                </nav>
+                <div id="header-search-box">
+                    <a id="search-menu" href="#">
+                        <span id="search-icon" class="ion-ios-search-strong"></span>
+                    </a>
+                    <div id="search-form" class="search-form">
+                        <form role="search" method="get" id="searchform" action="#">
+                            <input type="search" placeholder="Search" required>
+                            <button type="submit">
+                                <span class="ion-ios-search-strong"></span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <!-- col-md-8 -->
+        </div>
+    </header>
+</div>
+<div class="content-body">
+    <div class="container">
+        <div class="row">
+            <main class="col-md-12">
+                <h1 class="page-title">软件介绍</h1>
+                <article class="post">
+                    <div class="entry-content clearfix">
+                        <p> Seckill是一款使用Python和pyqt编写，利用selenium库实现的自动化抢单软件，可以帮助你在购物时快人一步，及时秒杀到自己想要的商品。</p>
+                        <div class="height-40px"></div>
+                        <h1 class="title text-center">使用说明</h1>
+                        <figure class="img-responsive-center">
+                            <img class="img-responsive" src="img/show.png" alt="Developer Image">
+                        </figure>
+                        <h3>第一步 选择购物平台</h3>
+                        <p>目前我们支持的购物平台包括淘宝和京东</p>
+                        <h3>第二步 输入商品链接</h3>
+                        <p>在淘宝或京东的网页端找到你要购买的商品页，例如
+                            <a href="https://item.jd.com/100014219124.html" target="_blank" class="url">https://item.jd.com/100014219124.html</a>
+                        </p>
+                        <h3>第三步 选择购物方式</h3>
+                        <p></p>
+                        <p>方式1：马上抢购</p>
+                        <p>点击图标
+                            <img src="img/qiang.png" alt="qiang" style="zoom:10%;">
+                            后，左侧的自动化网页即会跳转到淘宝/京东登录页面，使用手机扫码登录，登陆成功后网页会自动跳转至对应商品界面，选择要购买的商品类型和商品数量，等待秒杀活动开始时，软件会自动在活动开始时0.01秒内进行秒杀，之后会自动提交订单并跳转至付款界面，提示您抢购成功。
+                        </p>
+                        <p>方式2：定时抢购</p>
+                        <p>点击图标
+                            <img src="img/later.png" alt="later" style="zoom:10%;">
+                            后，会弹出设置抢单时间页面，设置成功后，左侧的自动化网页即会跳转到淘宝/京东登录页面，使用手机扫码登录，登陆成功后网页会自动跳转至对应商品界面，选择要购买的商品类型和商品数量，之后软件会在设定的时间开始自动进行抢单。
+                    </div>
+                </article>
+            </main>
+        </div>
+    </div>
+</div>
+<footer id="site-footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <p class="copyright">&copy; 2022 Distiny</p>
+            </div>
+        </div>
+    </div>
+</footer>
+<!-- Mobile Menu -->
+<div class="overlay overlay-hugeinc">
+    <button type="button" class="overlay-close">
+        <span class="ion-ios-close-empty"></span>
+    </button>
+    <nav>
+        <ul>
+            <li>
+                <a href="index.html">使用说明</a>
+            </li>
+            <li>
+                <a href="about.html">关于</a>
+            </li>
+        </ul>
+    </nav>
+</div>
+<script src="js/script.js"></script>
+</body>
+
+</html>
