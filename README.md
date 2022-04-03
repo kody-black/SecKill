@@ -8,7 +8,7 @@ Seckill是一款使用Python和pyqt编写，利用selenium库实现的自动化�
 
 # 源码配置
 
-开发环境：
+## 开发环境：
 
 Python 3.7.9 + PyCharm2021(Professional Edition)
 
@@ -16,7 +16,7 @@ PyQt5
 
 Chrome 	100.0.4896.60
 
-windows配置方法：
+## windows/linux配置方法：
 
 pip install pyqt5	#pyqt5的界面
 
@@ -25,6 +25,25 @@ pip install selenium	#核心包，用于自动化chrome
 pip install qrainbowstyle  #这个包用来更改界面配置
 
 python3 main.py
+
+## 文档结构
+
+```bash
+SecKill
+│  chromedriver.exe
+│  main.py
+│  README.md
+│  settime.py
+│
+├─icons
+│
+├─manual
+│  │  about.html
+│  └─  index.html
+│
+└─  my_ui
+   └─  SeckillUi.py
+```
 
 ## 常见的问题与调试
 
