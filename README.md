@@ -70,11 +70,11 @@ SecKill
 
 ###### 方式1：马上抢购
 
-点击图标<img src="https://raw.githubusercontent.com/distiny-cool/SecKill/main/icons/taobao.png" width="25"/>后，左侧的自动化网页即会跳转到淘宝/京东登录页面，使用手机扫码登录，登陆成功后网页会自动跳转至对应商品界面，选择要购买的商品类型和商品数量，等待秒杀活动开始时，软件会自动在活动开始时0.01秒内进行秒杀，之后会自动提交订单并跳转至付款界面，提示您抢购成功。
+点击图标<img src="https://raw.githubusercontent.com/distiny-cool/SecKill/main/icons/qiang.png" width="25"/>后，左侧的自动化网页即会跳转到淘宝/京东登录页面，使用手机扫码登录，登陆成功后网页会自动跳转至对应商品界面，选择要购买的商品类型和商品数量，等待秒杀活动开始时，软件会自动在活动开始时0.01秒内进行秒杀，之后会自动提交订单并跳转至付款界面，提示您抢购成功。
 
 ###### 方式2：定时抢购
 
-点击图标<img src="https://raw.githubusercontent.com/distiny-cool/SecKill/main/icons/jdong.png" alt="later" width="25"/>后，会弹出设置抢单时间页面，设置成功后，左侧的自动化网页即会跳转到淘宝/京东登录页面，使用手机扫码登录，登陆成功后网页会自动跳转至对应商品界面，选择要购买的商品类型和商品数量，之后软件会在设定的时间开始自动进行抢单。
+点击图标<img src="https://raw.githubusercontent.com/distiny-cool/SecKill/main/icons/later.png" alt="later" width="25"/>后，会弹出设置抢单时间页面，设置成功后，左侧的自动化网页即会跳转到淘宝/京东登录页面，使用手机扫码登录，登陆成功后网页会自动跳转至对应商品界面，选择要购买的商品类型和商品数量，之后软件会在设定的时间开始自动进行抢单。
 
 
 # 关于
