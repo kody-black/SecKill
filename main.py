@@ -13,13 +13,11 @@ from selenium.webdriver.common.by import By
 import my_ui.SeckillUi
 from settime import SetTime
 import qrainbowstyle
-import qrainbowstyle.windows
 
 
 
 class MainDialog(QMainWindow):
     stop_thread = threading.Event()
-    mychrome = r"file:///" + sys.path[0] + "/chromedriver.exe"
 
     def __init__(self, parent=None):
         super(QMainWindow, self).__init__(parent)
