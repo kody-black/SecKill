@@ -12,8 +12,8 @@ class SetTime(QDialog):
         icon.addPixmap(QtGui.QPixmap("icons/later.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.setWindowIcon(icon)
         self.resize(300, 90)
-        screen = QDesktopWidget().screenGeometry()
-        self.move(screen.width() / 2.5, screen.height() / 2.5)
+        # screen = QDesktopWidget().screenGeometry()
+        # self.move(screen.width() / 2.5, screen.height() / 2.5)
 
         # 在布局中添加部件
         layout = QVBoxLayout(self)

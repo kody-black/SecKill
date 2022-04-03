@@ -15,7 +15,12 @@ from settime import SetTime
 import qrainbowstyle
 import qrainbowstyle.windows
 
+
+
 class MainDialog(QMainWindow):
+    stop_thread = threading.Event()
+    mychrome = r"file:///" + sys.path[0] + "/chromedriver.exe"
+
     def __init__(self, parent=None):
         super(QMainWindow, self).__init__(parent)
         self.timer = QTimer(self)
@@ -228,6 +233,7 @@ class MainDialog(QMainWindow):
             self.browser = webdriver.Chrome()
             self.browser.get(self.manual)
         self.ui.textBrowser.setText("抢单已终止！\n请重新选择抢单...")
+        self.stop_thread.set()
         self.ui.btn_now.setDisabled(False)
         self.ui.btn_quit.setDisabled(True)
 
