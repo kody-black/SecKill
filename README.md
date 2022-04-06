@@ -30,19 +30,20 @@ python3 main.py
 
 ```bash
 SecKill
-│  chromedriver.exe
-│  main.py
-│  README.md
-│  settime.py
+│  chromedriver.exe           ----浏览器驱动
+│  main.py                    ----函数入口+核心函数
+│  README.md        
+│  settime.py                 ----定时抢单模块
 │
 ├─icons
 │
-├─manual
+├─manual                      ----帮助文档
 │  │  about.html
 │  └─  index.html
 │
 └─  my_ui
-   └─  SeckillUi.py
+   └─  SeckillUi.py          ----界面文件
+
 ```
 
 ## 常见的问题与调试
