@@ -1,6 +1,10 @@
 
-
 # 软件介绍
+
+[![GitHub issues](https://img.shields.io/github/issues/distiny-cool/SecKill.svg?style=flat)](https://github.com/distiny-cool/SecKill/issues)
+[![License MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://github.com/home-assistant/home-assistant-iOS/blob/master/LICENSE)
+[![](https://img.shields.io/github/stars/distiny-cool/SecKill.svg?style=social&label=Star)](https://github.com/distiny-cool/distiny-cool.SecKill)
+[![](https://img.shields.io/github/forks/distiny-cool/SecKill.svg?style=social&label=Fork)](https://github.com/distiny-cool/distiny-cool.SecKill)
 
 Seckill是一款使用Python和pyqt编写，利用selenium库实现的自动化抢单软件，它界面友好，使用方便，可以帮助你在购物时快人一步，及时秒杀到自己想要的商品。
 
