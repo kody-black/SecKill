@@ -101,12 +101,12 @@ class MainDialog(QMainWindow):
         while True:
             try:
                 self.ui.textBrowser.append("请选择商品详情，等待开抢...")
-                loc = (By.ID, "J_LinkBuy")
+                loc = (By.XPATH, "//*[@id=\"J_juValid\"]/div[1]/a")
                 WebDriverWait(self.browser, 30, 0.01).until(EC.visibility_of_element_located(loc))
-                self.browser.find_element(By.ID, "J_LinkBuy").click()
+                self.browser.find_element(By.XPATH, "//*[@id=\"J_juValid\"]/div[1]/a").click()
                 break
             except:
-                self.ui.textBrowser.append("正在等待开枪/抢购中...")
+                self.ui.textBrowser.append("正在等待开抢/抢购中...")
                 self.ui.textBrowser.moveCursor(self.ui.textBrowser.textCursor().End)
 
         # 点击提交订单按钮
@@ -201,7 +201,7 @@ class MainDialog(QMainWindow):
             self.ui.btn_quit.setDisabled(False)
             self.timer.start(1000)
         else:
-            self.ui.textBrowser.setText(QDateTime.currentDateTime().toString())
+            self.ui.textBrowser.setText("准备抢单...")
 
     def buy_it_now(self):
         self.ui.textBrowser.moveCursor(self.ui.textBrowser.textCursor().End)
