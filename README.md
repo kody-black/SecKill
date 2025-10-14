@@ -10,6 +10,8 @@ Seckill是一款使用Python和pyqt编写，利用selenium库实现的自动化�
 
 <img src="https://raw.githubusercontent.com/distiny-cool/SecKill/main/manual/img/show.png" alt="qiang">
 
+todo: 重构（before 12月31日）
+
 # 源码配置
 
 ## 开发环境：
