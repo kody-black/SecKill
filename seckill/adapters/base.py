@@ -135,12 +135,41 @@ class BaseAdapter(ABC):
             self._locator(page, by, rendered).click(timeout=timeout)
         elif action == "click_js":
             page.evaluate(f"document.querySelector({rendered!r})?.click()")
+        elif action == "click_text":
+            # 用 JS 查找包含指定文字的按钮/链接并点击，绕过 iframe 遮挡
+            texts = step.get("texts", [rendered]) if isinstance(step.get("texts"), list) else [rendered]
+            js = """(texts) => {
+                const all = document.querySelectorAll('button, a, div[role="button"], div[class*="btn"], span[class*="btn"], [onclick]');
+                for (const el of all) {
+                    const t = (el.textContent || '').trim();
+                    for (const kw of texts) {
+                        if (t.includes(kw)) { el.click(); return true; }
+                    }
+                }
+                return false;
+            }"""
+            result = page.evaluate(js, [self.render(t, task) for t in texts])
+            if not result:
+                raise RuntimeError(f"未找到包含 {texts} 的可点击元素")
         elif action == "wait_visible":
             self._locator(page, by, rendered).wait_for(state="visible", timeout=timeout)
         elif action == "wait_hidden":
             self._locator(page, by, rendered).wait_for(state="hidden", timeout=timeout)
         elif action == "wait_url":
             page.wait_for_url(f"**/*{rendered}*", timeout=timeout)
+        elif action == "wait_title":
+            # 轮询等待页面标题包含指定文字（用于 SPA 跳转，URL 不变但标题变了）
+            import time as _time
+            deadline = _time.time() + timeout / 1000
+            while _time.time() < deadline:
+                self._check_stop()
+                try:
+                    if rendered in (page.title() or ""):
+                        return
+                except Exception:
+                    pass
+                _time.sleep(0.3)
+            raise TimeoutError(f"等待标题包含「{rendered}」超时")
         elif action == "fill":
             self._locator(page, by, rendered).fill(
                 str(step.get("text", "")), timeout=timeout

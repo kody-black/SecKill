@@ -87,8 +87,15 @@ class SeckillScheduler(threading.Thread):
 
         self._ensure_login(browser)
 
-        self.bus.log("打开商品页并选择规格…")
-        prep = self.adapter.prepare(browser, self.task)
+        # _ensure_login 已打开商品页，这里只做规格选择等后续准备
+        prep_steps = (self.adapter.dom_cfg.get("specs") or [])
+        if prep_steps:
+            self.bus.log("选择规格…")
+            prep = self.adapter.run_steps(browser.page, prep_steps, self.task)
+            if not prep.ok:
+                self.bus.log(f"选规格未完全成功：{prep.message}（继续尝试）", "warning")
+        else:
+            self.bus.log("商品页已就绪")
 
         blocked = self.adapter.check_blocked(browser.page)
         if blocked:
@@ -96,10 +103,6 @@ class SeckillScheduler(threading.Thread):
                 f"页面被平台风控拦截（命中特征：{blocked}）。"
                 "建议先点「重新扫码登录」建立登录态再试，或过一会儿再抢。"
             )
-
-        if not prep.ok:
-            # 准备阶段失败通常只是规格已选好或页面结构变化，不致命
-            self.bus.log(f"准备阶段未完全成功：{prep.message}（继续尝试）", "warning")
 
         # ---------- 2. 等待：到点前保持就绪 ----------
         if self.task.target_time:
@@ -137,25 +140,54 @@ class SeckillScheduler(threading.Thread):
     # ------------------------------------------------------------------ 细节
 
     def _ensure_login(self, browser: BrowserSession) -> None:
-        """复用登录态；失效时才引导扫码。"""
-        home = self.adapter.meta.get("home")
-        page = browser.page
-        if home:
-            try:
-                page.goto(home, wait_until="domcontentloaded", timeout=30_000)
-            except Exception as exc:  # noqa: BLE001
-                self.bus.log(f"打开首页失败：{exc}", "warning")
+        """复用登录态；失效时才引导扫码。
 
-        if self.adapter.is_logged_in(page):
-            self.bus.emit(EventKind.SESSION, "已复用已有登录态", "success")
-            self.bus.log("登录态有效，跳过扫码")
+        直接用商品页检验登录态：未登录会跳转到登录页。
+        比先开首页再查 Cookie 更可靠（不同域名的 Cookie 可能看到的不一样）。
+        """
+        page = browser.page
+        target = self.task.url or self.adapter.meta.get("home") or ""
+        if not target:
+            return
+        try:
+            page.goto(target, wait_until="domcontentloaded", timeout=45_000)
+        except Exception as exc:  # noqa: BLE001
+            self.bus.log(f"打开页面失败：{exc}", "warning")
             return
 
-        self.bus.log("登录态失效或不存在，需要扫码登录", "warning")
-        if not self.adapter.login(browser):
-            raise RuntimeError("登录失败，无法继续抢单")
-        self.session_mgr.mark_login("扫码登录")
-        self.bus.emit(EventKind.SESSION, "登录成功", "success")
+        import time as _t
+        _t.sleep(3)
+
+        # 判断是否真的在登录页：标题是"登录"或 URL 含 passport/login.jhtml，
+        # 不能简单检查 URL 是否包含 "login"（天猫商品页 SSR 路径自带 login_j）
+        url = page.url or ""
+        title = ""
+        try:
+            title = page.title() or ""
+        except Exception:  # noqa: BLE001
+            pass
+        is_login_page = (
+            title.strip() == "登录"
+            or "passport" in url
+            or "login.jhtml" in url
+            or "havanaone" in url
+        )
+
+        if is_login_page or self.adapter.check_blocked(page):
+            self.bus.log("登录态失效或不存在，需要扫码登录", "warning")
+            if not self.adapter.login(browser):
+                raise RuntimeError("登录失败，无法继续抢单")
+            self.session_mgr.mark_login("扫码登录")
+            self.bus.emit(EventKind.SESSION, "登录成功", "success")
+            # 登录后重新打开商品页
+            try:
+                page.goto(target, wait_until="domcontentloaded", timeout=45_000)
+                _t.sleep(3)
+            except Exception as exc:  # noqa: BLE001
+                self.bus.log(f"登录后重新打开页面失败：{exc}", "warning")
+        else:
+            self.bus.emit(EventKind.SESSION, "已复用已有登录态", "success")
+            self.bus.log("登录态有效，跳过扫码")
 
     def _wait_until(self, target) -> bool:
         """等到目标时刻。返回 False 表示被中止。"""
