@@ -1,0 +1,10 @@
+# SecKill 2.0 依赖
+#
+# 安装后还需下载浏览器内核（任选其一）：
+#   python -m playwright install chromium     # 用自带的 Chromium
+#   系统已装 Chrome 则不必下载，配置里 browser.channel 保持 chrome 即可
+
+PySide6-Essentials>=6.6
+playwright>=1.44
+PyYAML>=6.0
+requests>=2.31

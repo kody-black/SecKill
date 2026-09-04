@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>模拟商店</title>
+<style>
+  body { font-family: system-ui, sans-serif; padding: 40px; background: #f7f7f8; }
+  #itemInfo { background:#fff; padding:24px; border-radius:10px; max-width:420px; }
+  .sku-name { font-size:18px; margin:0 0 16px; }
+  button { font-size:16px; padding:12px 28px; border:0; border-radius:6px; cursor:pointer; }
+  #buyBtn, #order-submit { background:#e1251b; color:#fff; }
+  button:disabled { background:#ccc; cursor:not-allowed; }
+  #status { margin-top:16px; color:#666; font-size:14px; }
+  #panel { display:none; }
+</style>
+</head>
+<body>
+
+<div id="itemInfo">
+  <h1 class="sku-name">测试商品（模拟页面）</h1>
+  <div id="status">初始化…</div>
+  <p><button id="buyBtn" disabled>立即抢购</button></p>
+</div>
+
+<div id="panel">
+  <h1>确认订单</h1>
+  <p><button id="order-submit">提交订单</button></p>
+</div>
+
+<script>
+(function () {
+  var params = new URLSearchParams(location.search);
+  var openAt = parseInt(params.get('openAt') || '0', 10);
+  var buyBtn = document.getElementById('buyBtn');
+  var statusEl = document.getElementById('status');
+
+  function tick() {
+    var remain = openAt - Date.now();
+    if (remain <= 0) {
+      buyBtn.disabled = false;
+      statusEl.textContent = '已开抢';
+      return;
+    }
+    statusEl.textContent = '距开抢 ' + (remain / 1000).toFixed(3) + ' s（按钮不可点）';
+    setTimeout(tick, 50);
+  }
+  tick();
+
+  buyBtn.addEventListener('click', function () {
+    if (buyBtn.disabled) return;
+    document.getElementById('itemInfo').style.display = 'none';
+    document.getElementById('panel').style.display = 'block';
+    history.replaceState(null, '', location.pathname + '?step=order');
+  });
+
+  document.getElementById('order-submit').addEventListener('click', function () {
+    history.replaceState(null, '', location.pathname + '?step=success');
+    document.getElementById('panel').innerHTML = '<h1>下单成功</h1>';
+  });
+})();
+</script>
+</body>
+</html>

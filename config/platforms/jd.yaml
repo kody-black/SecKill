@@ -1,0 +1,135 @@
+# 京东平台配置
+#
+# 页面结构会随京东改版变化。改版后请只改本文件，不要去动 Python 代码。
+# 校准方法见 README「如何校准选择器」。
+
+platform:
+  id: jd
+  name: 京东
+  icon: icons/jdong.png
+  home: https://www.jd.com/
+  match:
+    - item.jd.com
+    - item.m.jd.com
+    - item.jd.hk
+  sku_pattern: 'item\.jd\.(?:com|hk)/(\d+)'
+  user_agent: >-
+    Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
+    (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36
+  # 命中这些特征说明被风控拦截了（实测未登录访问商品页会跳 403 频控页）
+  block_markers:
+    - "reason=403"
+    - "暂时无法展示该商品"
+    - "验证码"
+
+login:
+  url: https://passport.jd.com/new/login.aspx
+  timeout: 180
+  # 实测：新版登录页默认就是二维码（.qrcode-login 可见），无需切换
+  qr_switch:
+    by: css
+    value: ""
+  # 实测：未登录时页面也有「我的京东」入口，所以不能用文字判定，
+  # 只认登录后才会有的 Cookie
+  logged_in_cookies:
+    - thor
+    - pin
+  logged_in_selectors:
+    - "css:#ttbar-login .nickname"
+
+# ---------------------------------------------------------------------------
+# 接口直调：绕过页面渲染与滑块，成功率显著高于 DOM 点击。
+# 启用前请按 README 的抓包步骤把真实请求填进来，然后把 enabled 改成 true。
+# 未启用时会自动退回下面的 dom 流程。
+# ---------------------------------------------------------------------------
+api:
+  enabled: false
+  steps: []
+  # 示例（京东历史上可用的加购接口，仅作格式参考，务必自己抓包确认）：
+  # steps:
+  #   - name: 加入购物车
+  #     request:
+  #       method: GET
+  #       url: "https://cart.jd.com/gate.action"
+  #       params:
+  #         pid: "{sku}"
+  #         pcount: "{quantity}"
+  #         ptype: "1"
+  #       timeout: 5
+  #     expect:
+  #       status: 200
+  #       not_contains: "商品已售完"
+  #   - name: 提交订单
+  #     request:
+  #       method: POST
+  #       url: "https://trade.jd.com/shopping/order/submitOrder.action"
+  #       data:
+  #         overseaPurchaseCookies: ""
+  #       headers:
+  #         Referer: "https://trade.jd.com/shopping/order/getOrderInfo.action"
+  #       timeout: 8
+  #     expect:
+  #       contains: "success"
+
+dom:
+  # 开抢前执行：打开商品页、等待加载、选规格
+  prepare:
+    - action: goto
+      value: "{url}"
+      timeout: 30000
+      desc: 打开商品页
+    - action: wait_visible
+      by: css
+      value: "#itemInfo, .itemInfo-wrap, .sku-name"
+      timeout: 15000
+      optional: true
+      desc: 等待商品信息加载
+
+  # 选规格：按需填写，value 用 CSS 选择器，text 填要选的规格名
+  specs: []
+  #   - action: click
+  #     by: xpath
+  #     value: "//div[@id='choose-attr-1']//a[contains(text(),'黑色')]"
+  #     timeout: 3000
+  #     optional: true
+  #     desc: 选择颜色
+  #   - action: fill
+  #     by: css
+  #     value: "#buy-num"
+  #     text: "{quantity}"
+  #     optional: true
+  #     desc: 填写数量
+
+  # 开抢瞬间执行
+  fire:
+    - action: click
+      by: id
+      value: "InitCartUrl"
+      timeout: 3000
+      optional: true
+      desc: 加入购物车
+    - action: click
+      by: id
+      value: "GotoShoppingCart"
+      timeout: 3000
+      optional: true
+      desc: 去购物车结算
+    - action: wait_url
+      value: "cart.jd.com"
+      timeout: 8000
+      optional: true
+      desc: 等待进入购物车
+    - action: click
+      by: css
+      value: ".common-submit-btn, #cart-submit, .goto-order"
+      timeout: 5000
+      optional: true
+      desc: 去结算
+    - action: click
+      by: css
+      value: "#order-submit"
+      timeout: 5000
+      desc: 提交订单
+
+  # 提交后 URL 出现这个关键字才算成功
+  success_url: "success"

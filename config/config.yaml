@@ -1,0 +1,30 @@
+"""全局配置。可被数据目录下的 config.yaml 覆盖。"""
+app:
+  name: SecKill
+  theme: auto          # auto / light / dark
+
+browser:
+  channel: chrome      # 优先使用系统 Chrome；找不到会自动退回自带 Chromium
+  locale: zh-CN
+  timezone: Asia/Shanghai
+  viewport:
+    width: 1280
+    height: 900
+
+defaults:
+  max_attempts: 60
+  timeout_seconds: 180
+  prefer_api: true
+  headless: false
+
+retry:
+  base_delay: 0.12     # 首次重试间隔（秒）
+  max_delay: 1.20
+  factor: 1.35
+
+clock:
+  ntp_servers:
+    - ntp.aliyun.com
+    - ntp.tencent.com
+    - cn.pool.ntp.org
+    - time.windows.com

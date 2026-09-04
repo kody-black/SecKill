@@ -1,2 +1,18 @@
 .idea/*
 ._pyche_/*
+__pycache__/
+*.pyc
+
+# WorkBuddy 工作数据
+.workbuddy/
+
+.venv/
+venv/
+build/
+build_test/
+dist/
+release/
+*.spec
+
+# 旧版遗留（11MB 的 chromedriver，已不再需要）
+legacy/chromedriver_v1.exe

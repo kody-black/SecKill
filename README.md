@@ -1,94 +1,178 @@
 
-# 软件介绍
+# SecKill
 
-[![GitHub issues](https://img.shields.io/github/issues/distiny-cool/SecKill.svg?style=flat)](https://github.com/distiny-cool/SecKill/issues)
-[![License MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://github.com/home-assistant/home-assistant-iOS/blob/master/LICENSE)
-[![](https://img.shields.io/github/stars/distiny-cool/SecKill.svg?style=social&label=Star)](https://github.com/distiny-cool/distiny-cool.SecKill)
-[![](https://img.shields.io/github/forks/distiny-cool/SecKill.svg?style=social&label=Fork)](https://github.com/distiny-cool/distiny-cool.SecKill)
+配置驱动的自动化抢单工具。Python 3.11+ / PySide6 / Playwright，支持京东与淘宝。
 
-Seckill是一款使用Python和pyqt编写，利用selenium库实现的自动化抢单软件，它界面友好，使用方便，可以帮助你在购物时快人一步，及时秒杀到自己想要的商品。
+流程分四个阶段，全部走完才算一次完整抢单：
 
-<img src="https://raw.githubusercontent.com/distiny-cool/SecKill/main/manual/img/show.png" alt="qiang">
+1. **校时** —— 连接 NTP 服务器取权威时间，UDP 123 被封时改用 HTTP Date 头估算，精度到毫秒
+2. **登录** —— 复用保存在本地的登录态，失效时才弹出浏览器扫码
+3. **准备** —— 打开商品页、等待加载、按配置选规格
+4. **开抢** —— 到点后按配置执行：优先发接口请求，接口未配置时点击页面元素；失败按指数退避重试，次数和总时长都有上限
 
-todo: 重构（before 12月31日）
+页面被平台风控拦截时会明确报出命中的特征，方便判断是登录态问题还是频率问题。
 
-# 源码配置
-
-## 开发环境：
-
-Python 3.7.9 + PyCharm2021(Professional Edition)
-
-PyQt5
-
-Chrome 	100.0.4896.60
-
-## windows/linux配置方法：
-
-pip install pyqt5	#pyqt5的界面
-
-pip install selenium	#核心包，用于自动化chrome
-
-pip install qrainbowstyle  #这个包用来更改界面配置
-
-python3 main.py
-
-## 文档结构
+## 安装
 
 ```bash
-SecKill
-│  chromedriver.exe           ----浏览器驱动
-│  main.py                    ----函数入口+核心函数
-│  README.md        
-│  settime.py                 ----定时抢单模块
-│
-├─icons
-│
-├─manual                      ----帮助文档
-│  │  about.html
-│  └─  index.html
-│
-└─  my_ui
-   └─  SeckillUi.py          ----界面文件
-
+python -m venv .venv && .venv\Scripts\activate
+pip install -r requirements.txt
+python -m playwright install chromium   # 系统装了 Chrome 可跳过
 ```
 
-## 常见的问题与调试
+## 使用
 
-我的系统chrome版本是100.0.4896.60，使用默认的chromedriver可能会和你的版本不同
-你可以选择下载100.0.4896.60的chrome浏览器
-也可以将主目录中的chromedriver.exe更换为你的chrome对应的版本，这里建议你使用后一种方法，chromedriver下载地址为：http://chromedriver.storage.googleapis.com/index.html
+### 图形界面
 
-## 建议和期待
+```bash
+python main.py
+```
 
-欢迎大家对本软件fork进行改进，如果觉得不错可以给个**stars**✨或者关注一下[**作者**](https://github.com/distiny-cool)
-在尝试使用pyinstaller发布本软件exe版本时，出现了一些bug，例如外部库和图片资源不能成功导入等，所以暂时没有发布exe版本，大家可以尝试一下，期待你的改进！
+粘贴商品链接会自动识别平台并提取 SKU，设置数量和开抢时间后点「开始抢单」。
+首次会弹浏览器要求扫码，登录态保存后长期有效。
 
-# 使用说明
+### 无界面模式
 
-#### 第一步 选择购物平台
+```bash
+python main.py --cli --url "https://item.jd.com/100014219124.html" --time "2026-09-10 20:00:00" --qty 1
+```
 
-目前我们支持的购物平台包括淘宝和京东
+`Ctrl+C` 随时中止。所有参数用 `python main.py --help` 查看。
 
-#### 第二步 输入商品链接
+### 选择器校准
 
-在淘宝或京东的网页端找到你要购买的商品页，例如https://item.jd.com/100014219124.html
+平台页面改版后，用校准工具核对配置：
 
-#### 第三步 选择购物方式
+```bash
+python tools/calibrate.py --platform jd --url "https://item.jd.com/xxxxx.html" --candidates
+```
 
-###### 方式1：马上抢购
+工具会打开真实页面，逐条报告 `dom.prepare` / `dom.specs` / `dom.fire` 里每个选择器的命中情况，
+未命中时列出页面上真实存在的可点击元素（id、class、文字），直接抄回 YAML 即可。
 
-点击图标<img src="https://raw.githubusercontent.com/distiny-cool/SecKill/main/icons/qiang.png" width="25"/>后，左侧的自动化网页即会跳转到淘宝/京东登录页面，使用手机扫码登录，登陆成功后网页会自动跳转至对应商品界面，选择要购买的商品类型和商品数量，等待秒杀活动开始时，软件会自动在活动开始时0.01秒内进行秒杀，之后会自动提交订单并跳转至付款界面，提示您抢购成功。
+## 目录结构
 
-###### 方式2：定时抢购
+```
+SecKill
+├─ main.py                     入口
+├─ config/
+│  ├─ config.yaml              全局配置
+│  └─ platforms/
+│     ├─ jd.yaml               京东
+│     └─ taobao.yaml           淘宝
+├─ seckill/
+│  ├─ core/
+│  │  ├─ models.py             任务与结果模型
+│  │  ├─ events.py             事件总线（核心层无 Qt 依赖）
+│  │  ├─ clock.py              NTP / HTTP 校时
+│  │  ├─ session.py            登录态管理
+│  │  ├─ executor.py           重试引擎：退避、上限、可中断
+│  │  └─ scheduler.py          阶段编排：校时 → 登录 → 准备 → 等待 → 开抢
+│  ├─ adapters/                平台插件，流程声明在 YAML
+│  ├─ drivers/browser.py       Playwright 持久化上下文封装
+│  ├─ ui/main_window.py        PySide6 界面
+│  └─ cli.py                   无界面模式
+├─ tools/calibrate.py          选择器校准工具
+├─ tests/                      核心自测 + 端到端测试
+└─ release/                    打包产物（不进 Git）
+```
 
-点击图标<img src="https://raw.githubusercontent.com/distiny-cool/SecKill/main/icons/later.png" alt="later" width="25"/>后，会弹出设置抢单时间页面，设置成功后，左侧的自动化网页即会跳转到淘宝/京东登录页面，使用手机扫码登录，登陆成功后网页会自动跳转至对应商品界面，选择要购买的商品类型和商品数量，之后软件会在设定的时间开始自动进行抢单。
+核心层不依赖 Qt，`seckill/core/` 里的模块可以单独 import、单独测试，更换界面层时逻辑原样保留。
 
+## 配置
 
-# 关于
+平台流程全部声明在 `config/platforms/*.yaml`，改平台只需改文件。
 
-请注意：连续长时间多次使用本软件抢单可能会被购物平台列为敏感用户。
+支持的动作：
 
-本软件是 Distiny 在应用软件设计课程的小作业，抢单功能及代码逻辑仅供个人使用和学习，请勿滥用。
+| action | 说明 | 关键字段 |
+| --- | --- | --- |
+| `goto` | 打开地址，支持 `{url}` `{sku}` `{quantity}` 占位符 | `value`, `timeout` |
+| `click` | 点击 | `by`, `value`, `timeout` |
+| `wait_visible` | 等元素出现 | `by`, `value`, `timeout` |
+| `wait_url` | 等 URL 包含某串 | `value`, `timeout` |
+| `fill` | 填输入框 | `by`, `value`, `text` |
+| `press` | 按键 | `by`, `value`, `key` |
+| `js` | 执行 JS | `value` |
+| `sleep` | 等待 | `ms` |
 
-欢迎对本软件的设计和改进提出建议！
+定位方式 `by`：`css`（默认）/ `xpath` / `text` / `id` / `role`（形如 `button:提交订单`）。
+`optional: true` 的步骤失败只警告不中断，适合「有就点、没有就跳过」的分支。
+`dom.success_url` 配置一个 URL 关键字，出现它才算下单成功，失败时会自动截图留证。
 
+### 接口直调
+
+`api` 段配置好后（`enabled: true`）优先走 HTTP 请求，速度快且避开页面渲染，失败自动退回 DOM 点击。
+用抓包工具（Chrome DevTools、Fiddler）拿到「加购」和「提交订单」两个真实请求，填进 `api.steps`：
+
+```yaml
+api:
+  enabled: true
+  steps:
+    - name: 加入购物车
+      request:
+        method: GET
+        url: "https://cart.jd.com/gate.action"
+        params: { pid: "{sku}", pcount: "{quantity}" }
+        timeout: 5
+      expect:
+        status: 200
+        not_contains: "商品已售完"
+```
+
+`expect` 判断步骤成败：`status` 比对状态码，`contains` / `not_contains` 匹配响应体。
+Cookie 会自动从浏览器会话带入，无需手填。
+
+淘宝下单走 mtop 接口，`sign` 签名动态生成，配置需要现抓现用。
+
+## 测试结论
+
+以下是 2026-09 在真实页面上实测的结果，已写进配置：
+
+- **京东商品页对未登录的自动化访问直接返回 403 频控页**（跳转 `pc-frequent-pro.pf.jd.com`，页面提示「暂时无法展示该商品的信息」）。配置里已加 `block_markers` 特征检测，命中时报出明确提示。应对办法：先在界面点「重新扫码登录」建立登录态，再开抢。
+- 京东登录页默认展示二维码（`.qrcode-login`），无需切换。
+- 京东未登录时页面顶部也有「我的京东」入口，登录判定只认登录后才存在的 Cookie（`thor` / `pin`）。
+- 淘宝登录页已升级为 havanaone 统一登录，默认展示密码框，配置里通过 XPath 点击「扫码登录」完成切换。
+- 淘宝首页可正常访问，未登录状态下顶部导航含「亲，请登录」。
+
+### 测试覆盖
+
+```bash
+PYTHONPATH=. python tests/test_core.py    # 核心逻辑，无需浏览器，秒级
+PYTHONPATH=. python tests/test_e2e.py     # 端到端，需要 Chrome，约 10 秒
+```
+
+`tests/test_core.py`（8 项）：重试次数有硬上限、停止指令立刻终止循环、退避等待中可被打断、
+占位符渲染、NTP 偏移量计算、事件总线监听器异常隔离。
+
+`tests/test_e2e.py`（3 项）基于 `tests/fixtures/mock_shop.html` 模拟商店，
+页面会模拟「开抢前按钮不可点、到点才解禁」的真实行为：
+
+| 用例 | 验证内容 |
+| --- | --- |
+| 定时抢购 | 开抢时刻早于按钮解禁时刻，前几次点击失败并退避，到点后成功下单 |
+| 立即抢购 | 按钮已解禁，一次尝试直接走完「抢购 → 订单页 → 提交 → 成功页」 |
+| 等待中止 | 300 秒的定时等待在 2 秒内被停止指令打断并正常收尾 |
+
+## 数据目录
+
+运行期数据在 `%LOCALAPPDATA%\SecKill\`（其它平台 `~/.seckill/`），含 `sessions/`（登录态）、
+`logs/seckill.log`（轮转日志）、`screenshots/`（失败截图）。设 `SECKILL_HOME` 可改位置。
+
+## 打包
+
+```bash
+pyinstaller --noconfirm --clean --name SecKill --windowed --onedir ^
+  --add-data "config;config" --add-data "icons;icons" ^
+  --distpath release --workpath build --specpath build main.py
+```
+
+产物在 `release/SecKill/`，整个目录拷走即可运行；`config/` 放在 exe 同级，
+改配置直接编辑，无需重新打包。`release/` 已加入 `.gitignore`。
+
+## 风控与合规
+
+- 高频请求会被平台判定为异常。默认退避参数已偏保守，调小会更快被拦。
+- 平台官方的「预约 + 开售提醒」在大部分场景下更可靠。
+- 连续长时间批量抢单有限制账号的风险。
+- 本工具仅供个人学习研究，请勿用于转售、囤货或任何经营性用途。

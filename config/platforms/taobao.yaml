@@ -1,0 +1,88 @@
+# 淘宝平台配置
+#
+# 淘宝风控最严，强烈建议先把 api 段抓包配好再使用；
+# 纯 DOM 点击在淘宝上下单成功率很低，且容易触发滑块。
+
+platform:
+  id: taobao
+  name: 淘宝
+  icon: icons/taobao.png
+  home: https://www.taobao.com/
+  match:
+    - item.taobao.com
+    - detail.tmall.com
+    - item.m.taobao.com
+    - h5.m.taobao.com
+  sku_pattern: '[?&]id=(\d+)'
+  user_agent: >-
+    Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
+    (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36
+
+login:
+  url: https://login.taobao.com/member/login.jhtml
+  timeout: 180
+  # 实测：已升级为 havanaone 统一登录，默认展示密码框，
+  # 需要点一次「扫码登录」切过去；点不到也没关系，代码里会忽略
+  qr_switch:
+    by: xpath
+    value: "//*[contains(text(),'扫码登录')]"
+  logged_in_cookies:
+    - cookie2
+    - sgcookie
+    - _tb_token_
+  logged_in_selectors:
+    - "css:.site-nav-login-info-nick"
+    - "css:#J_SiteNavLogin .site-nav-login-info-nick"
+    - "text:我的淘宝"
+
+api:
+  enabled: false
+  steps: []
+  # 淘宝下单走 mtop 接口，签名（sign / token）每次都变，
+  # 需要先在浏览器里抓到完整请求再原样填进来，见 README。
+
+dom:
+  prepare:
+    - action: goto
+      value: "{url}"
+      timeout: 30000
+      desc: 打开商品页
+    - action: wait_visible
+      by: css
+      value: "#J_DivItemDesc, .tb-main-title, [class*=ItemHeader]"
+      timeout: 15000
+      optional: true
+      desc: 等待商品信息加载
+
+  specs: []
+  #   - action: click
+  #     by: xpath
+  #     value: "//div[contains(@class,'J_Prop')]//a[contains(text(),'黑色')]"
+  #     optional: true
+  #     desc: 选择规格
+
+  fire:
+    - action: click
+      by: css
+      value: "#J_LinkBuy, .tb-btn-buy, [class*=BuyBtn]"
+      timeout: 3000
+      optional: true
+      desc: 立即购买
+    - action: click
+      by: css
+      value: "#J_juValid > div > a, [class*=juValid] a"
+      timeout: 3000
+      optional: true
+      desc: 秒杀按钮（聚划算/限时购旧模板）
+    - action: wait_url
+      value: "buy.taobao.com"
+      timeout: 8000
+      optional: true
+      desc: 等待进入下单页
+    - action: click
+      by: css
+      value: "#submitOrderPC_1, .go-btn, [class*=SubmitOrder]"
+      timeout: 5000
+      desc: 提交订单
+
+  success_url: "success"
