@@ -14,18 +14,20 @@
 
 ## 安装
 
-```bash
-python -m venv .venv && .venv\Scripts\activate
-pip install -r requirements.txt
-python -m playwright install chromium   # 系统装了 Chrome 可跳过
+```powershell
+.\seckill.ps1 setup
 ```
+
+一条命令完成：创建 `.venv`、安装依赖、下载 Chromium 内核（系统装了 Chrome 时内核只作兜底）。
+
+所有日常操作都走这个脚本，`.\seckill.ps1 help` 可随时查看。
 
 ## 使用
 
 ### 图形界面
 
-```bash
-python main.py
+```powershell
+.\seckill.ps1 run
 ```
 
 粘贴商品链接会自动识别平台并提取 SKU，设置数量和开抢时间后点「开始抢单」。
@@ -33,18 +35,18 @@ python main.py
 
 ### 无界面模式
 
-```bash
-python main.py --cli --url "https://item.jd.com/100014219124.html" --time "2026-09-10 20:00:00" --qty 1
+```powershell
+.\seckill.ps1 cli -Url "https://item.jd.com/100014219124.html" -Time "2026-09-10 20:00:00" -Qty 1
 ```
 
-`Ctrl+C` 随时中止。所有参数用 `python main.py --help` 查看。
+`Ctrl+C` 随时中止；加 `-Headless` 不弹浏览器窗口。
 
 ### 选择器校准
 
 平台页面改版后，用校准工具核对配置：
 
-```bash
-python tools/calibrate.py --platform jd --url "https://item.jd.com/xxxxx.html" --candidates
+```powershell
+.\seckill.ps1 calibrate -Platform jd -Url "https://item.jd.com/xxxxx.html"
 ```
 
 工具会打开真实页面，逐条报告 `dom.prepare` / `dom.specs` / `dom.fire` 里每个选择器的命中情况，
@@ -54,6 +56,7 @@ python tools/calibrate.py --platform jd --url "https://item.jd.com/xxxxx.html" -
 
 ```
 SecKill
+├─ seckill.ps1                 快捷操作脚本（setup/run/cli/test/release…）
 ├─ main.py                     入口
 ├─ config/
 │  ├─ config.yaml              全局配置
